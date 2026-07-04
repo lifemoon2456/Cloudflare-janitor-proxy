@@ -254,7 +254,9 @@ def handle_proxy():
                 return jsonify(create_error_response("Cloudflare AI request was not successful.")), 200
 
             content = cf_response.get('result', {}).get('response', '')
-
+            print(f"--- Cloudflare Raw Response: {json.dumps(cf_response)[:500]} ---")
+            if not content:
+                print("WARNING: Cloudflare returned an empty string!")
             janitor_response = {
                 "id": f"chatcmpl-{int(time.time())}",
                 "object": "chat.completion",
