@@ -143,14 +143,18 @@ def handle_proxy():
         print(f"Using Cloudflare model: {selected_model}")
 
         # إعداد الحمولة (Payload) الخاصة بـ Cloudflare
+        # حماية: JanitorAI أحياناً يرسل max_tokens بقيمة 0 أو -1 مما يجعل Cloudflare ترسل رداً فارغاً
+        max_t = json_data.get('max_tokens', MAX_TOKENS)
+        if not isinstance(max_t, int) or max_t <= 0:
+            max_t = MAX_TOKENS
+
         cf_request = {
             "messages": messages,
             "stream": is_streaming,
             "temperature": json_data.get('temperature', TEMPERATURE),
-            "max_tokens": json_data.get('max_tokens', MAX_TOKENS),
+            "max_tokens": max_t,
             "top_p": json_data.get('top_p', TOP_P)
         }
-
         # رابط Cloudflare Workers AI
         url = f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/run/{selected_model}"
 
